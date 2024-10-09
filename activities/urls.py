@@ -14,9 +14,10 @@ router.register(r'notifications', NotificationViewSet)
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('', include(router.urls)),
-    path('', HomeView.as_view(), name='home'),  # Home page route
+    path('home/', HomeView.as_view(), name='home'),
+    # path('', HomeView.as_view(), name='home'),  # Home page route
     path('activity-metrics/', ActivityMetricsView.as_view(), name='activity-metrics'), 
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/login/', CustomTokenObtainPairView.as_view(), name='login'),
+     path('register/', UserViewSet.as_view({'post': 'register'}), name='register'),  # Custom URL for register
 ]

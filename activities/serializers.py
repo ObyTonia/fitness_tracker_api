@@ -21,6 +21,27 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)  # Hash the new password if provided
         instance.save()
         return instance
+    
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)  # Password should be write-only
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'first_name', 'last_name']
+
+    def create(self, validated_data):
+        """
+        Override the create method to ensure the password is hashed.
+        """
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.set_password(validated_data['password'])  # Hash the password
+        user.save()
+        return user
 
 class ActivitySerializer(serializers.ModelSerializer):
      user = serializers.StringRelatedField(read_only=True)  # Shows the username instead of user ID

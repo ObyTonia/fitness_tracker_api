@@ -1,10 +1,11 @@
 from django.db.models import Sum
 from django.db.models.functions import TruncWeek
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import User, Activity, WorkoutPlan, Goal, Notification
-from .serializers import UserSerializer, ActivitySerializer, WorkoutPlanSerializer, GoalSerializer, NotificationSerializer
+from .serializers import UserSerializer, ActivitySerializer, WorkoutPlanSerializer, GoalSerializer, NotificationSerializer, UserRegistrationSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -18,11 +19,22 @@ class HomeView(APIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    A viewset for viewing and editing user instances.
+    A viewset for viewing, editing, and registering users.
     """
-    queryset = User.objects.all()  # Queryset for User model
-    serializer_class = UserSerializer  # Serializer for User model
+    queryset = User.objects.all()
+    serializer_class = UserSerializer  # Serializer for retrieving user data
     permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        """
+        Custom action for user registration.
+        """
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ActivityViewSet(viewsets.ModelViewSet):
