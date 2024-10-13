@@ -1,50 +1,26 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Activity, WorkoutPlan, Goal, Notification
+from .models import User, Activity, Notification
+
+# User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__' #Includes all the field from the model
+        fields = ['username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}} #Makes password field writeonly (won't be included in the serializer output when reading)
 
     def create(self, validated_data):
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])  # Hash the password to ensure security
-        user.save() # Save the new User object to the database, now with the hashed password.
-        return user
-    def update(self, instance, validated_data):
-        instance.username = validated_data.get('username', instance.username)
-        instance.email = validated_data.get('email', instance.email)
-        password = validated_data.get('password')
-        if password:
-            instance.set_password(password)  # Hash the new password if provided
-        instance.save()
-        return instance
-    
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)  # Password should be write-only
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name']
-
-    def create(self, validated_data):
-        """
-        Override the create method to ensure the password is hashed.
-        """
-        user = User(
-            email=validated_data['email'],
+        """Overriding create method to handle password hashing"""
+        user = User.objects.create_user(
             username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=validated_data['password']
         )
-        user.set_password(validated_data['password'])  # Hash the password
-        user.save()
         return user
-
+    
 class ActivitySerializer(serializers.ModelSerializer):
-     user = serializers.StringRelatedField(read_only=True)  # Shows the username instead of user ID
+     user = serializers.StringRelatedField(read_only=True)  
      class Meta:
         model = Activity
         fields = '__all__' #Includes all the field from the model
@@ -62,24 +38,16 @@ class ActivitySerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Distance cannot be negative.")
         return value
-     
-class WorkoutPlanSerializer(serializers.ModelSerializer):
-     user = serializers.StringRelatedField(read_only=True)  # Displays username for the user
-     activities = ActivitySerializer(many=True, read_only=True)  # Nested serializer for activities
-     class Meta:
-        model = WorkoutPlan
-        fields = '__all__' #Includes all the field from the model
-        read_only_fields = ['user_id', 'date'] # User ID and date are set automatically
-
-class GoalSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)  # Shows the username instead of user ID
-    class Meta:
-        model = Goal
-        fields = '__all__' #Includes all the field from the model
-        read_only_fields = ['user_id', 'date'] # User ID and date are set automatically
+    
 class NotificationSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)  # Shows the username instead of user ID
     class Meta:
         model = Notification
         fields = '__all__' #Includes all the field from the model
-        read_only_fields = ['user_id', 'date'] # User ID and date are set automatically
+        read_only_fields = ['date'] # User ID and date are set automatically
+
+class ActivityMetricsSerializer (serializers.Serializer):
+    period = serializers.ChoiceField(choices=['weekly', 'monthly'])
+    total_distance = serializers.FloatField()
+    total_calories = serializers.IntegerField()
+    total_duration = serializers.DurationField()
