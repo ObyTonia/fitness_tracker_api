@@ -82,16 +82,23 @@ class ActivityMetricsView(APIView):
             return Response ({"error": "Invalid period specified. Use 'weekly' or 'monthly'."}, status=400)
         
         # Filter activities for the user and the specified date range
-        activities = Activity.objects.filter(user=user,date_gte = start_date)
+        activities = Activity.objects.filter(user=user,date__gte = start_date)
 
         metrics = activities.aggregate (
-        total_duration=Sum('duration'),  # Total duration of all activities
-        total_distance=Sum('distance'),  # Total distance covered in activities
-        total_calories=Sum('calories_burned')  # Total calories burned in activities
+            total_duration=Sum('duration', default=0),  # Total duration of all activities
+            total_distance=Sum('distance', default=0),  # Total distance covered in activities
+            total_calories=Sum('calories_burned', default=0)  # Total calories burned in activities
         )
+       
+        metrics_data = {
+              'period': period,
+              'total_duration': timedelta(minutes=metrics['total_duration']),
+              'total_distance': metrics ['total_distance'],
+              'total_calories': metrics ['total_calories']
+        }
         
-        serializer = ActivityMetricsSerializer(metrics)
-
+        serializer = ActivityMetricsSerializer(metrics_data)
+        
         return Response(serializer.data)
 
     
