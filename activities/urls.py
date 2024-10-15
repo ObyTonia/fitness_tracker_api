@@ -3,13 +3,12 @@ from rest_framework.routers import DefaultRouter
 from .views import HomeView, UserViewSet, ActivityViewSet, NotificationViewSet, ActivityMetricsView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-# Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'activities', ActivityViewSet)
 router.register(r'notifications', NotificationViewSet)
 
-# The API URLs are now determined automatically by the router.
+
 urlpatterns = [
     path('', include(router.urls)),
     path('home/', HomeView.as_view(), name='home'),

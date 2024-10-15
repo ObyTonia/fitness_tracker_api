@@ -14,6 +14,12 @@ from rest_framework.decorators import action
 User = get_user_model()
 
 class HomeView(APIView):
+     """
+     A simple view to display a welcome message at the API's home endpoint.
+    Accessible to everyone without requiring authentication.
+    
+    """
+
      permission_classes = [permissions.AllowAny]  # Allow access to everyone
 
      def get(self, request):
@@ -22,6 +28,7 @@ class HomeView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     """
     A viewset for viewing, editing, and registering users.
+    
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer  # Serializer for retrieving user data
@@ -41,7 +48,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ActivityViewSet(viewsets.ModelViewSet):
     """
-    A viewset for viewing and editing activity instances.
+    A viewset for managing user activities, including retrieving, creating,
+    updating, and deleting activity instances.
+
     """
     queryset = Activity.objects.all()  # Queryset for Activity model
     serializer_class = ActivitySerializer  # Serializer for Activity model
@@ -51,6 +60,11 @@ class ActivityViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date']  # Optional ordering by date
 
     def get_queryset(self):
+        """
+        Returns the activity records for the authenticated user. Supports filtering by
+        date range if 'start_date' and 'end_date' are provided as query parameters.
+        
+        """
         queryset = Activity.objects.filter(user=self.request.user) #filters user activities
 
         """Date Range Filter 
@@ -68,10 +82,21 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
         
 class ActivityMetricsView(APIView):
+    """ 
+    A view that provides aggregated activity metrics for the authenticated user,
+    such as total duration, distance, and calories burned over a specified period (weekly or monthly).
+    
+    """
+    
     permission_classes = [permissions.IsAuthenticated]  # Ensure the user is authenticated
     serializer_class = ActivityMetricsSerializer  # Serializer for Activity model
 
     def get(self, request,):
+        """
+        Returns activity metrics for the user over a specified period ('weekly' or 'monthly').
+        Metrics include total duration, distance, and calories burned.
+        
+        """
         user = request.user
         period = request.query_params.get('period', 'weekly')  # Default to weekly if not specified
 
@@ -105,7 +130,10 @@ class ActivityMetricsView(APIView):
     
 class NotificationViewSet(viewsets.ModelViewSet):
     """
-    A viewset for viewing and editing notification instances.
+    A viewset for managing user notifications, including retrieving, creating,
+    updating, and deleting notification instances. Notifications are linked to the
+    authenticated user.
+
     """
     queryset = Notification.objects.all()  # Queryset for Notification model
     serializer_class = NotificationSerializer  # Serializer for Notification model
