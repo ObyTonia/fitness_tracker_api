@@ -24,7 +24,7 @@ class Activity(models.Model):
     date = models.DateTimeField(auto_now_add=True) #Stores date of activity
 
     def __str__(self):
-        return f"{self.activity_type} by {self.user_id.username} on {self.date}"
+        return f"{self.activity_type} by {self.user.username} on {self.date}"
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications') #Links Notification to user
     message = models.TextField() #Notification message
@@ -33,4 +33,4 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=20, default='general')
 
     def __str__(self):
-        return f"Notification for {self.user_id.username}: {self.message[:50]} on {self.date.strftime('%Y-%m-%d')}" #Displays first 50 characters of the message
+        return f"Notification for {self.user.username}: {self.message[:50]} on {self.date.strftime('%Y-%m-%d')}" #Displays first 50 characters of the message

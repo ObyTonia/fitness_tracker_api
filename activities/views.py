@@ -1,7 +1,8 @@
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import User, Activity, Notification
+from django.contrib.auth import get_user_model
+from .models import Activity, Notification
 from .serializers import UserSerializer, ActivitySerializer, NotificationSerializer, ActivityMetricsSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -10,7 +11,7 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework.decorators import action
 
-# User = get_user_model()
+User = get_user_model()
 
 class HomeView(APIView):
      permission_classes = [permissions.AllowAny]  # Allow access to everyone
