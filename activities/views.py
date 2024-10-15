@@ -10,6 +10,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework.decorators import action
+from rest_framework.reverse import reverse
 
 User = get_user_model()
 
@@ -141,3 +142,24 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class ApiRootViewAuthenticated(APIView):
+    """API root view for authenticated users.
+    It requires the user to be authenticated to access the API root.
+    
+    """
+    permission_classes = [permissions.IsAuthenticated]  # Only allow authenticated users
+    def get (self, request, format=None):
+        """
+        Handles GET requests for the API root view.
+
+        """
+        return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'activities': reverse('activity-list', request=request, format=format),
+        'notifications': reverse('notification-list', request=request, format=format),
+        'home': reverse('home', request=request, format=format),
+        'activity-metrics': reverse('activity-metrics', request=request, format=format),
+        'login': reverse('token_obtain_pair', request=request, format=format),
+        'token-refresh': reverse('token_refresh', request=request, format=format),
+    })
