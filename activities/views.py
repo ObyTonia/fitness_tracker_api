@@ -10,7 +10,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework.decorators import action
-from rest_framework.reverse import reverse
+from rest_framework.reverse import reverse_lazy
 
 User = get_user_model()
 
@@ -119,7 +119,7 @@ class ActivityMetricsView(APIView):
        
         metrics_data = {
               'period': period,
-              'total_duration': timedelta(minutes=metrics['total_duration']),
+              'total_duration': timedelta(seconds=metrics['total_duration']),
               'total_distance': metrics ['total_distance'],
               'total_calories': metrics ['total_calories']
         }
@@ -149,17 +149,24 @@ class ApiRootViewAuthenticated(APIView):
     
     """
     permission_classes = [permissions.IsAuthenticated]  # Only allow authenticated users
-    def get (self, request, format=None):
-        """
-        Handles GET requests for the API root view.
 
-        """
+    def get(self, request):
         return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'activities': reverse('activity-list', request=request, format=format),
-        'notifications': reverse('notification-list', request=request, format=format),
-        'home': reverse('home', request=request, format=format),
-        'activity-metrics': reverse('activity-metrics', request=request, format=format),
-        'login': reverse('token_obtain_pair', request=request, format=format),
-        'token-refresh': reverse('token_refresh', request=request, format=format),
-    })
+            'users': reverse_lazy('user-list'),
+            'activities': reverse_lazy('activity-list'),
+            'notifications': reverse_lazy('notification-list'),
+            'activity-metrics': reverse_lazy('activity-metrics'),
+        })
+
+class ApiRootViewAllowAny(APIView):
+    """
+    API root view accessible to any user, including unauthenticated users.
+    
+    """
+    permission_classes = [permissions.AllowAny]  # Allow anyone to access
+
+    def get(self, request):
+        return Response({
+            'login': reverse_lazy('token_obtain_pair'),
+            'token-refresh': reverse_lazy('token_refresh'),
+        })

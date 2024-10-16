@@ -6,7 +6,7 @@ from .models import User, Activity, Notification
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email')
     search_fields = ('username', 'email')
-    list_filter = ('is_active', 'is_staff', 'is_superuser')
+    list_filter = ('is_active', 'is_superuser')
     ordering = ('username',)
 
 # Customizing the Activity admin interface
