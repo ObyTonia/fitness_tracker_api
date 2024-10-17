@@ -63,13 +63,3 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__' #Includes all the field from the model
         read_only_fields = ['date'] # User ID and date are set automatically
-
-class ActivityMetricsSerializer (serializers.Serializer):
-    """
-    Serializer for aggregated metrics related to a user's activities, such as total distance, total calories,
-    and total duration. The period field specifies whether the metrics cover a weekly or monthly range.
-    """
-    period = serializers.ChoiceField(choices=['weekly', 'monthly'])
-    total_distance = serializers.FloatField()
-    total_calories = serializers.IntegerField()
-    total_duration = serializers.DurationField()

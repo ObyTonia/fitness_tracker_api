@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from .models import Activity, Notification
-from .serializers import UserSerializer, ActivitySerializer, NotificationSerializer, ActivityMetricsSerializer
+from .serializers import UserSerializer, ActivitySerializer, NotificationSerializer 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.db.models import Sum
@@ -90,7 +90,7 @@ class ActivityMetricsView(APIView):
     """
     
     permission_classes = [permissions.IsAuthenticated]  # Ensure the user is authenticated
-    serializer_class = ActivityMetricsSerializer  # Serializer for Activity model
+    
 
     def get(self, request,):
         """
@@ -124,9 +124,7 @@ class ActivityMetricsView(APIView):
               'total_calories': metrics ['total_calories']
         }
         
-        serializer = ActivityMetricsSerializer(metrics_data)
-        
-        return Response(serializer.data)
+        return Response(metrics_data)
 
     
 class NotificationViewSet(viewsets.ModelViewSet):
